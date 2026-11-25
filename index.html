@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ввод письма Дунба — BabelStoneNaxiLLC</title>
+    <title>Ввод письма Томба — BabelStoneNaxiLLC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -20,7 +20,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Дунба 전용 폰트 클래스 */
+        /* Томба 전용 폰트 클래스 */
         .dongba-font {
             font-family: 'BabelStoneNaxiLLC', 'BabelStone Naxi LLC', serif;
             line-height: 1.4;
@@ -53,8 +53,8 @@
                     &#xE000;
                 </div>
                 <div>
-                    <h1 class="text-lg sm:text-xl font-bold tracking-tight">Ввод письма Дунба</h1>
-                    <p class="text-xs text-slate-500">Поддержка BabelStoneNaxiLLC (PUA U+E000 ~ U+E5FF)</p>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight">Ввод письма Томба</h1>
+                    <p class="text-xs text-slate-500">Поддержка BabelStoneNaxiLLC (PUA U+E000 ~ U+E849)</p>
                 </div>
             </div>
 
@@ -91,7 +91,7 @@
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1.5 shrink-0"></span>
                     <div>
                         <h2 class="font-bold text-base">Выбор символов (Палитра знаков)</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Нажмите на знак, чтобы добавить его в область ввода Дунба и в область кодов Юникода.</p>
+                        <p class="text-xs text-slate-500 mt-0.5">Нажмите на знак, чтобы добавить его в область ввода Томба и в область кодов Юникода.</p>
                     </div>
                 </div>
 
@@ -111,7 +111,7 @@
                             </svg>
                         </button>
                     </div>
-                    <span class="text-xs font-mono text-slate-500 px-2">U+E000 – U+E5FF</span>
+                    <span class="text-xs font-mono text-slate-500 px-2">U+E000 – U+E849</span>
                 </div>
             </div>
 
@@ -123,7 +123,7 @@
             </div>
         </section>
 
-        <!-- 입력 영역 (유니코드 입력 영역 <-> Дунба 입력 영역) -->
+        <!-- 입력 영역 (유니코드 입력 영역 <-> Томба 입력 영역) -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
             <!-- 유니코드 코드 입력 영역 -->
@@ -156,27 +156,28 @@
                         <button onclick="copyText('unicode-input', 'Коды Юникода скопированы.')" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
                             Копировать коды
                         </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Дунба 출력 및 직접 편집 영역 -->
-            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
-                <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
-                        <h2 class="font-semibold text-sm sm:text-base">Область ввода Дунба</h2>
-                    </div>
-                    <!-- 글자 크기 조절 컨트롤 -->
-                    <div class="flex items-center space-x-2">
-                        <label for="font-size-slider" class="text-xs text-slate-500">Размер:</label>
-                        <input id="font-size-slider" type="range" min="24" max="72" value="40" class="w-20 sm:w-24 accent-indigo-600 cursor-pointer">
-                        <span id="font-size-label" class="text-xs font-mono w-9 text-right">40px</span>
+                    <!-- 글자 크기 직접 입력 컨트롤 -->
+                    <div class="flex items-center space-x-1.5">
+                        <label for="font-size-input" class="text-xs text-slate-500">Размер:</label>
+                        <input id="font-size-input" type="number" min="12" max="240" value="40" class="w-16 px-2 py-1 text-xs font-mono rounded-lg bg-white border border-slate-200 text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <span class="text-xs font-mono text-slate-500">px</span>
                     </div>
                 </div>
 
-                <!-- 출력된 Дунба 문자 스타일 설정 바 (크기, 굵기, 기울기, 색상) -->
+                <!-- 출력된 Томба 문자 스타일 설정 바 (크기, 간격, 굵기, 기울기, 색상) -->
                 <div class="px-4 py-2.5 bg-indigo-50/50 border-b border-indigo-100 flex flex-wrap items-center gap-3 text-xs text-slate-600">
+                    <div class="flex items-center space-x-1.5">
+                        <label for="letter-spacing-input" class="font-medium text-slate-600">Межбуквенный:</label>
+                        <input id="letter-spacing-input" type="number" min="-20" max="120" step="1" value="0" class="w-16 px-2 py-1 text-xs font-mono rounded-lg bg-white border border-slate-200 text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <span class="font-mono text-[11px] text-slate-500">px</span>
+                    </div>
+
+                    <div class="flex items-center space-x-1.5">
+                        <label for="line-height-input" class="font-medium text-slate-600">Межстрочный:</label>
+                        <input id="line-height-input" type="number" min="0.8" max="3.5" step="0.1" value="1.4" class="w-16 px-2 py-1 text-xs font-mono rounded-lg bg-white border border-slate-200 text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <span class="font-mono text-[11px] text-slate-500">×</span>
+                    </div>
+
                     <div class="flex items-center space-x-1.5">
                         <label for="font-weight-select" class="font-medium text-slate-600">Толщина:</label>
                         <select id="font-weight-select" class="px-2 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
@@ -211,7 +212,7 @@
                         id="dongba-output" 
                         rows="5"
                         style="font-size: 40px;"
-                        placeholder="Здесь отображаются знаки Дунба. Вы можете редактировать, вставлять или удалять их напрямую."
+                        placeholder="Здесь отображаются знаки Томба. Вы можете редактировать, вставлять или удалять их напрямую."
                         class="w-full flex-1 p-3.5 rounded-xl bg-indigo-50/30 border border-indigo-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none dongba-font resize-none transition"
                     ></textarea>
 
@@ -227,8 +228,8 @@
                                 </svg>
                                 Экспорт / Изображения
                             </button>
-                            <button onclick="copyText('dongba-output', 'Текст Дунба скопирован.')" class="inline-flex items-center px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition">
-                                Копировать Дунба
+                            <button onclick="copyText('dongba-output', 'Текст Томба скопирован.')" class="inline-flex items-center px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition">
+                                Копировать Томба
                             </button>
                         </div>
                     </div>
@@ -272,8 +273,9 @@
         // DOM 요소 참조
         const unicodeInput = document.getElementById('unicode-input');
         const dongbaOutput = document.getElementById('dongba-output');
-        const fontSizeSlider = document.getElementById('font-size-slider');
-        const fontSizeLabel = document.getElementById('font-size-label');
+        const fontSizeInput = document.getElementById('font-size-input');
+        const letterSpacingInput = document.getElementById('letter-spacing-input');
+        const lineHeightInput = document.getElementById('line-height-input');
         const fontWeightSelect = document.getElementById('font-weight-select');
         const fontStyleSelect = document.getElementById('font-style-select');
         const textColorPicker = document.getElementById('text-color-picker');
@@ -284,25 +286,37 @@
         const fontUpload = document.getElementById('font-upload');
         const fontStatusText = document.getElementById('font-status-text');
 
-        // 현재 Дунба 문자 스타일 상태
+        // 현재 Томба 문자 스타일 상태
         function getDongbaStyle() {
+            const rawSize = parseFloat(fontSizeInput.value);
+            const fontSize = Number.isFinite(rawSize) && rawSize > 0 ? Math.min(400, Math.max(8, rawSize)) : 40;
+
+            const rawSpacing = parseFloat(letterSpacingInput.value);
+            const letterSpacing = Number.isFinite(rawSpacing) ? Math.min(200, Math.max(-50, rawSpacing)) : 0;
+
+            const rawLineHeight = parseFloat(lineHeightInput.value);
+            const lineHeight = Number.isFinite(rawLineHeight) && rawLineHeight > 0 ? Math.min(5, Math.max(0.6, rawLineHeight)) : 1.4;
+
             return {
-                fontSize: parseInt(fontSizeSlider.value, 10) || 40,
+                fontSize,
+                letterSpacing,
+                lineHeight,
                 fontWeight: fontWeightSelect.value || '400',
                 fontStyle: fontStyleSelect.value || 'normal',
                 color: textColorPicker.value || '#0f172a'
             };
         }
 
-        // Дунба 출력 영역에 크기, 굵기, 기울기, 색상 스타일 적용
+        // Томба 출력 영역에 크기, 간격, 굵기, 기울기, 색상 스타일 적용
         function applyDongbaStyle() {
             const style = getDongbaStyle();
             dongbaOutput.style.fontSize = `${style.fontSize}px`;
+            dongbaOutput.style.letterSpacing = `${style.letterSpacing}px`;
+            dongbaOutput.style.lineHeight = `${style.lineHeight}`;
             dongbaOutput.style.fontWeight = style.fontWeight;
             dongbaOutput.style.fontStyle = style.fontStyle;
             dongbaOutput.style.color = style.color;
 
-            fontSizeLabel.textContent = `${style.fontSize}px`;
             textColorHex.textContent = style.color.toUpperCase();
 
             // 미리보기가 열려 있는 경우 SVG/이미지 미리보기도 함께 갱신
@@ -315,7 +329,9 @@
 
         // 스타일 기본값으로 초기화
         function resetDongbaStyle() {
-            fontSizeSlider.value = '40';
+            fontSizeInput.value = '40';
+            letterSpacingInput.value = '0';
+            lineHeightInput.value = '1.4';
             fontWeightSelect.value = '400';
             fontStyleSelect.value = 'normal';
             textColorPicker.value = '#0f172a';
@@ -323,9 +339,9 @@
             showToast('Стиль знаков сброшен.');
         }
 
-        // 전체 PUA 범위 상수 (U+E000 ~ U+E5FF)
+        // 전체 PUA 범위 상수 (U+E000 ~ U+E849)
         const START_CODEPOINT = 0xE000;
-        const END_CODEPOINT = 0xE5FF;
+        const END_CODEPOINT = 0xE849;
 
         // 마지막으로 생성된 SVG 문자열 및 크기 정보 보관
         let latestSVGString = '';
@@ -442,7 +458,7 @@
         }
 
         /**
-         * 유니코드 입력 문자열을 파싱하여 Дунба 문자로 변환
+         * 유니코드 입력 문자열을 파싱하여 Томба 문자로 변환
          * 지원 포맷: U+E000, \uE000, 0xE000, E000 등
          */
         function parseUnicodeToDongba(text) {
@@ -477,7 +493,7 @@
         }
 
         /**
-         * Дунба 문자열을 유니코드 표기(U+XXXX)로 변환
+         * Томба 문자열을 유니코드 표기(U+XXXX)로 변환
          */
         function parseDongbaToUnicode(text) {
             if (!text) return '';
@@ -498,7 +514,7 @@
             return convertedLines.join('\n');
         }
 
-        // 유니코드 영역 입력 이벤트 -> Дунба 영역 업데이트
+        // 유니코드 영역 입력 이벤트 -> Томба 영역 업데이트
         unicodeInput.addEventListener('input', () => {
             if (isSyncing) return;
             isSyncing = true;
@@ -507,7 +523,7 @@
             isSyncing = false;
         });
 
-        // Дунба 영역 직접 수정 이벤트 -> 유니코드 영역 업데이트
+        // Томба 영역 직접 수정 이벤트 -> 유니코드 영역 업데이트
         dongbaOutput.addEventListener('input', () => {
             if (isSyncing) return;
             isSyncing = true;
@@ -522,8 +538,10 @@
             charCount.textContent = `Всего знаков: ${count}`;
         }
 
-        // 폰트 크기 슬라이더 조절
-        fontSizeSlider.addEventListener('input', applyDongbaStyle);
+        // 스타일 입력 컨트롤 이벤트 연결
+        fontSizeInput.addEventListener('input', applyDongbaStyle);
+        letterSpacingInput.addEventListener('input', applyDongbaStyle);
+        lineHeightInput.addEventListener('input', applyDongbaStyle);
         fontWeightSelect.addEventListener('change', applyDongbaStyle);
         fontStyleSelect.addEventListener('change', applyDongbaStyle);
         textColorPicker.addEventListener('input', applyDongbaStyle);
@@ -557,13 +575,13 @@
             }
         }
 
-        // 글자 선택 시 Дунба 영역 및 유니코드 영역에 동시 추가
+        // 글자 선택 시 Томба 영역 및 유니코드 영역에 동시 추가
         function appendCharacter(codePoint) {
             isSyncing = true;
             const char = String.fromCodePoint(codePoint);
             const hex = codePoint.toString(16).toUpperCase().padStart(4, '0');
 
-            // Дунба 입력 영역에 추가
+            // Томба 입력 영역에 추가
             dongbaOutput.value += char;
 
             // 유니코드 입력 영역에 공백과 함께 추가
@@ -611,20 +629,21 @@
         }
 
         /**
-         * 현재 출력된 Дунба 문자를 기반으로 유효하고 깨지지 않는 SVG 벡터 문자열 생성
+         * 현재 출력된 Томба 문자를 기반으로 유효하고 깨지지 않는 SVG 벡터 문자열 생성
          */
         function buildDongbaSVGString(text) {
             const lines = text.split('\n');
-            const { fontSize, fontWeight, fontStyle, color } = getDongbaStyle();
+            const { fontSize, letterSpacing, lineHeight, fontWeight, fontStyle, color } = getDongbaStyle();
             const padding = Math.round(fontSize * 0.5);
-            const charSpacing = Math.round(fontSize * (fontStyle === 'italic' ? 1.4 : 1.25));
-            const lineHeight = Math.round(fontSize * 1.5);
+            const slantExtra = fontStyle === 'italic' ? Math.round(fontSize * 0.15) : 0;
+            const charStep = Math.max(fontSize * 0.4, fontSize * 1.15 + slantExtra + letterSpacing);
+            const rowHeight = Math.max(fontSize * 0.8, fontSize * lineHeight);
 
             const lineCharsList = lines.map(line => Array.from(line));
             const maxCharsInLine = Math.max(1, ...lineCharsList.map(chars => chars.length));
 
-            const svgWidth = Math.max(fontSize * 2.5, padding * 2 + maxCharsInLine * charSpacing);
-            const svgHeight = Math.max(fontSize * 2.5, padding * 2 + lineCharsList.length * lineHeight);
+            const svgWidth = Math.max(fontSize * 2.5, Math.ceil(padding * 2 + maxCharsInLine * charStep));
+            const svgHeight = Math.max(fontSize * 2.5, Math.ceil(padding * 2 + lineCharsList.length * rowHeight));
             latestSVGDimensions = { width: svgWidth, height: svgHeight };
 
             const escapeXml = (str) => str
@@ -636,10 +655,10 @@
 
             const vectorElements = [];
             lineCharsList.forEach((chars, lineIdx) => {
-                const baseY = padding + lineIdx * lineHeight;
+                const baseY = Math.round(padding + lineIdx * rowHeight);
                 chars.forEach((ch, charIdx) => {
                     if (ch === ' ' || ch === '\t') return;
-                    const x = padding + charIdx * charSpacing;
+                    const x = Math.round(padding + charIdx * charStep);
                     const pathData = traceCharacterToSVGPath(ch, fontSize, fontWeight, fontStyle);
 
                     if (pathData) {
@@ -674,11 +693,11 @@
             ].filter(Boolean).join('\n');
         }
 
-        // Дунба 벡터(SVG) 미리보기 및 내보내기 준비
+        // Томба 벡터(SVG) 미리보기 및 내보내기 준비
         function exportDongbaSVG() {
             const text = dongbaOutput.value;
             if (!text.trim()) {
-                showToast('Нет знаков Дунба для экспорта.');
+                showToast('Нет знаков Томба для экспорта.');
                 return;
             }
 
@@ -726,7 +745,7 @@
         function downloadRasterImage(format) {
             const text = dongbaOutput.value;
             if (!text.trim()) {
-                showToast('Нет знаков Дунба для экспорта.');
+                showToast('Нет знаков Томба для экспорта.');
                 return;
             }
 
@@ -860,7 +879,7 @@
             }
             const cp = parseInt(query, 16);
             if (cp < START_CODEPOINT || cp > END_CODEPOINT) {
-                showToast('Код вне диапазона U+E000 – U+E5FF');
+                showToast('Код вне диапазона U+E000 – U+E849');
                 return;
             }
 
@@ -898,7 +917,7 @@
             }
         });
 
-        // 초기 실행: 전체 Дунба 문자 렌더링 및 기본 예시 로드
+        // 초기 실행: 전체 Томба 문자 렌더링 및 기본 예시 로드
         window.addEventListener('DOMContentLoaded', () => {
             applyDongbaStyle();
             renderGlyphGrid();
