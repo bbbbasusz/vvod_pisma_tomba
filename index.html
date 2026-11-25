@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ввод письма Дунба — BabelStoneNaxiLLC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* BabelStoneNaxiLLC 로컬 폰트 연결 및 웹폰트 폴백 설정 */
+        @font-face {
+            font-family: 'BabelStoneNaxiLLC';
+            src: local('BabelStoneNaxiLLC'),
+                 local('BabelStone Naxi LLC'),
+                 url('https://www.babelstone.co.uk/Fonts/Download/BabelStoneNaxiLLC.ttf') format('truetype');
+            font-display: swap;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        /* Дунба 전용 폰트 클래스 */
+        .dongba-font {
+            font-family: 'BabelStoneNaxiLLC', 'BabelStone Naxi LLC', serif;
+            line-height: 1.4;
+        }
+
+        /* 스크롤바 커스텀 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col transition-colors duration-200">
+
+    <!-- 상단 헤더 -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center dongba-font text-2xl shadow-md">
+                    &#xE000;
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight">Ввод письма Дунба</h1>
+                    <p class="text-xs text-slate-500">Поддержка BabelStoneNaxiLLC (PUA U+E000 ~ U+E5FF)</p>
+                </div>
+            </div>
+
+            <!-- 로컬 폰트 직접 업로드 버튼 -->
+            <div class="flex items-center space-x-2">
+                <label for="font-upload" class="cursor-pointer inline-flex items-center px-3 py-2 rounded-lg text-xs sm:text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+                    <svg class="w-4 h-4 mr-1.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                    </svg>
+                    <span id="font-status-text">Загрузить шрифт (.ttf)</span>
+                </label>
+                <input id="font-upload" type="file" accept=".ttf,.otf,.woff,.woff2" class="hidden" />
+            </div>
+        </div>
+    </header>
+
+    <!-- 알림 메시지 토스트 -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-800 text-white px-4 py-3 rounded-xl shadow-lg flex items-center space-x-2 text-sm font-medium">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="toast-message">Скопировано!</span>
+        </div>
+    </div>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- 영역 3 -> 최상단 배치: 글자 선택 영역 (문자표 팔레트) -->
+        <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-start space-x-2.5">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 mt-1.5 shrink-0"></span>
+                    <div>
+                        <h2 class="font-bold text-base">Выбор символов (Палитра знаков)</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Нажмите на знак, чтобы добавить его в область ввода Дунба и в область кодов Юникода.</p>
+                    </div>
+                </div>
+
+                <!-- 페이지 및 검색 컨트롤 -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="hex-search" 
+                            placeholder="Код (напр. E00D)" 
+                            maxlength="6"
+                            class="pl-3 pr-8 py-1.5 text-sm rounded-lg bg-slate-100 border border-transparent focus:border-indigo-500 focus:bg-white outline-none font-mono w-44 transition"
+                        >
+                        <button onclick="jumpToHex()" title="Найти символ" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <span class="text-xs font-mono text-slate-500 px-2">U+E000 – U+E5FF</span>
+                </div>
+            </div>
+
+            <!-- 글리프 그리드 컨테이너 -->
+            <div class="p-4 sm:p-6">
+                <div id="glyph-grid" class="grid grid-cols-4 sm:grid-cols-8 md:grid-cols-10 lg:grid-cols-12 gap-2.5 max-h-[420px] overflow-y-auto pr-1">
+                    <!-- 자바스크립트로 동적 생성 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 입력 영역 (유니코드 입력 영역 <-> Дунба 입력 영역) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <!-- 유니코드 코드 입력 영역 -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+                <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                        <h2 class="font-semibold text-sm sm:text-base">Ввод кодов Юникода (Unicode Hex)</h2>
+                    </div>
+                    <div class="flex items-center space-x-1.5">
+                        <button onclick="insertSample()" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition">
+                            Пример (E000~E00D)
+                        </button>
+                        <button onclick="clearAll()" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-200/70 text-slate-600 hover:bg-slate-300/70 transition">
+                            Очистить
+                        </button>
+                    </div>
+                </div>
+
+                <div class="p-4 flex-1 flex flex-col">
+                    <textarea 
+                        id="unicode-input" 
+                        rows="5"
+                        placeholder="Введите коды Юникода.&#10;Пример: U+E000 U+E001 E002 \uE003 0xE004 (разделители: пробел, запятая, новая строка)"
+                        class="w-full flex-1 p-3.5 rounded-xl bg-slate-50 border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-mono text-sm resize-none transition"
+                    ></textarea>
+                    
+                    <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                        <span>Форматы: <code class="bg-slate-100 px-1.5 py-0.5 rounded">U+E000</code>, <code class="bg-slate-100 px-1.5 py-0.5 rounded">E000</code>, <code class="bg-slate-100 px-1.5 py-0.5 rounded">\uE000</code></span>
+                        <button onclick="copyText('unicode-input', 'Коды Юникода скопированы.')" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+                            Копировать коды
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Дунба 출력 및 직접 편집 영역 -->
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+                <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                        <h2 class="font-semibold text-sm sm:text-base">Область ввода Дунба</h2>
+                    </div>
+                    <!-- 글자 크기 조절 컨트롤 -->
+                    <div class="flex items-center space-x-2">
+                        <label for="font-size-slider" class="text-xs text-slate-500">Размер:</label>
+                        <input id="font-size-slider" type="range" min="24" max="72" value="40" class="w-20 sm:w-24 accent-indigo-600 cursor-pointer">
+                        <span id="font-size-label" class="text-xs font-mono w-9 text-right">40px</span>
+                    </div>
+                </div>
+
+                <!-- 출력된 Дунба 문자 스타일 설정 바 (크기, 굵기, 기울기, 색상) -->
+                <div class="px-4 py-2.5 bg-indigo-50/50 border-b border-indigo-100 flex flex-wrap items-center gap-3 text-xs text-slate-600">
+                    <div class="flex items-center space-x-1.5">
+                        <label for="font-weight-select" class="font-medium text-slate-600">Толщина:</label>
+                        <select id="font-weight-select" class="px-2 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
+                            <option value="400" selected>Обычный (400)</option>
+                            <option value="500">Средний (500)</option>
+                            <option value="600">Полужирный (600)</option>
+                            <option value="700">Жирный (700)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-1.5">
+                        <label for="font-style-select" class="font-medium text-slate-600">Наклон:</label>
+                        <select id="font-style-select" class="px-2 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none cursor-pointer">
+                            <option value="normal" selected>Обычный</option>
+                            <option value="italic">Курсив</option>
+                        </select>
+                    </div>
+
+                    <div class="flex items-center space-x-1.5">
+                        <label for="text-color-picker" class="font-medium text-slate-600">Цвет:</label>
+                        <input id="text-color-picker" type="color" value="#0f172a" class="w-7 h-7 p-0.5 rounded-lg bg-white border border-slate-200 cursor-pointer">
+                        <span id="text-color-hex" class="font-mono text-[11px] text-slate-500">#0F172A</span>
+                    </div>
+
+                    <button type="button" onclick="resetDongbaStyle()" class="ml-auto px-2 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 font-medium transition">
+                        Сброс стиля
+                    </button>
+                </div>
+
+                <div class="p-4 flex-1 flex flex-col">
+                    <textarea 
+                        id="dongba-output" 
+                        rows="5"
+                        style="font-size: 40px;"
+                        placeholder="Здесь отображаются знаки Дунба. Вы можете редактировать, вставлять или удалять их напрямую."
+                        class="w-full flex-1 p-3.5 rounded-xl bg-indigo-50/30 border border-indigo-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none dongba-font resize-none transition"
+                    ></textarea>
+
+                    <div class="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                        <span id="char-count">Всего знаков: 0</span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="backspaceDongba()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium transition">
+                                ← Удалить знак
+                            </button>
+                            <button onclick="exportDongbaSVG()" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm transition">
+                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                                </svg>
+                                Экспорт / Изображения
+                            </button>
+                            <button onclick="copyText('dongba-output', 'Текст Дунба скопирован.')" class="inline-flex items-center px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-sm transition">
+                                Копировать Дунба
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Векторный предпросмотр (SVG) и экспорт в PNG / JPG -->
+        <section id="svg-preview-section" class="hidden bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center space-x-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                    <h2 class="font-semibold text-sm sm:text-base">Предпросмотр и экспорт (SVG, PNG, JPG)</h2>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <button onclick="downloadGeneratedSVG()" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium shadow-sm transition">
+                        Скачать .svg
+                    </button>
+                    <button onclick="downloadRasterImage('png')" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium shadow-sm transition">
+                        Скачать .png
+                    </button>
+                    <button onclick="downloadRasterImage('jpg')" class="inline-flex items-center px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium shadow-sm transition">
+                        Скачать .jpg
+                    </button>
+                    <button onclick="copySVGCode()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition">
+                        Копировать код SVG
+                    </button>
+                    <button onclick="closeSVGPreview()" class="px-2.5 py-1.5 rounded-lg text-slate-500 hover:bg-slate-200/60 text-xs font-medium transition">
+                        Скрыть
+                    </button>
+                </div>
+            </div>
+            <div class="p-5 flex flex-col items-center justify-center bg-slate-50/60">
+                <div id="svg-preview-box" class="max-w-full overflow-x-auto bg-white p-4 rounded-xl border border-slate-200 shadow-inner"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // DOM 요소 참조
+        const unicodeInput = document.getElementById('unicode-input');
+        const dongbaOutput = document.getElementById('dongba-output');
+        const fontSizeSlider = document.getElementById('font-size-slider');
+        const fontSizeLabel = document.getElementById('font-size-label');
+        const fontWeightSelect = document.getElementById('font-weight-select');
+        const fontStyleSelect = document.getElementById('font-style-select');
+        const textColorPicker = document.getElementById('text-color-picker');
+        const textColorHex = document.getElementById('text-color-hex');
+        const charCount = document.getElementById('char-count');
+        const glyphGrid = document.getElementById('glyph-grid');
+        const hexSearch = document.getElementById('hex-search');
+        const fontUpload = document.getElementById('font-upload');
+        const fontStatusText = document.getElementById('font-status-text');
+
+        // 현재 Дунба 문자 스타일 상태
+        function getDongbaStyle() {
+            return {
+                fontSize: parseInt(fontSizeSlider.value, 10) || 40,
+                fontWeight: fontWeightSelect.value || '400',
+                fontStyle: fontStyleSelect.value || 'normal',
+                color: textColorPicker.value || '#0f172a'
+            };
+        }
+
+        // Дунба 출력 영역에 크기, 굵기, 기울기, 색상 스타일 적용
+        function applyDongbaStyle() {
+            const style = getDongbaStyle();
+            dongbaOutput.style.fontSize = `${style.fontSize}px`;
+            dongbaOutput.style.fontWeight = style.fontWeight;
+            dongbaOutput.style.fontStyle = style.fontStyle;
+            dongbaOutput.style.color = style.color;
+
+            fontSizeLabel.textContent = `${style.fontSize}px`;
+            textColorHex.textContent = style.color.toUpperCase();
+
+            // 미리보기가 열려 있는 경우 SVG/이미지 미리보기도 함께 갱신
+            const previewSection = document.getElementById('svg-preview-section');
+            if (previewSection && !previewSection.classList.contains('hidden') && dongbaOutput.value.trim()) {
+                latestSVGString = buildDongbaSVGString(dongbaOutput.value);
+                document.getElementById('svg-preview-box').innerHTML = latestSVGString;
+            }
+        }
+
+        // 스타일 기본값으로 초기화
+        function resetDongbaStyle() {
+            fontSizeSlider.value = '40';
+            fontWeightSelect.value = '400';
+            fontStyleSelect.value = 'normal';
+            textColorPicker.value = '#0f172a';
+            applyDongbaStyle();
+            showToast('Стиль знаков сброшен.');
+        }
+
+        // 전체 PUA 범위 상수 (U+E000 ~ U+E5FF)
+        const START_CODEPOINT = 0xE000;
+        const END_CODEPOINT = 0xE5FF;
+
+        // 마지막으로 생성된 SVG 문자열 및 크기 정보 보관
+        let latestSVGString = '';
+        let latestSVGDimensions = { width: 0, height: 0 };
+
+        // 업로드된 폰트 바이너리(ArrayBuffer) 및 Data URL 캐시
+        let loadedFontBuffer = null;
+        let loadedFontDataUrl = null;
+        const glyphPathCache = new Map();
+
+        // 동기화 무한 루프 방지 플래그
+        let isSyncing = false;
+
+        /**
+         * ArrayBuffer를 Base64 문자열로 변환 (SVG 내장 @font-face용)
+         */
+        function arrayBufferToBase64(buffer) {
+            const bytes = new Uint8Array(buffer);
+            let binary = '';
+            const chunkSize = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+                const sub = bytes.subarray(i, i + chunkSize);
+                binary += String.fromCharCode.apply(null, sub);
+            }
+            return btoa(binary);
+        }
+
+        /**
+         * Canvas 2D를 이용해 단일 문자의 실제 픽셀 영역을 추출하고
+         * SVG <path> 데이터로 변환합니다. (외부 뷰어에서도 깨지지 않는 벡터 경로 생성)
+         */
+        function traceCharacterToSVGPath(char, fontSize, fontWeight = '400', fontStyle = 'normal') {
+            const cacheKey = `${char.codePointAt(0)}_${fontSize}_${fontWeight}_${fontStyle}`;
+            if (glyphPathCache.has(cacheKey)) {
+                return glyphPathCache.get(cacheKey);
+            }
+
+            try {
+                const scale = 2;
+                const slantExtra = fontStyle === 'italic' ? Math.ceil(fontSize * 0.35) : 0;
+                const cell = Math.ceil(fontSize * 1.35) + slantExtra;
+                const canvas = document.createElement('canvas');
+                canvas.width = cell * scale;
+                canvas.height = cell * scale;
+
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                if (!ctx) return null;
+
+                ctx.scale(scale, scale);
+                ctx.clearRect(0, 0, cell, cell);
+                ctx.fillStyle = '#000000';
+                ctx.font = `${fontStyle} ${fontWeight} ${fontSize}px 'BabelStoneNaxiLLC', 'BabelStone Naxi LLC', serif`;
+                ctx.textBaseline = 'alphabetic';
+                ctx.fillText(char, cell * 0.1, cell * 0.85);
+
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const w = imgData.width;
+                const h = imgData.height;
+                const data = imgData.data;
+
+                // 알파 마스크 생성
+                const mask = new Uint8Array(w * h);
+                let minX = w, minY = h, maxX = 0, maxY = 0;
+                let hasPixel = false;
+
+                for (let y = 0; y < h; y++) {
+                    for (let x = 0; x < w; x++) {
+                        const alpha = data[(y * w + x) * 4 + 3];
+                        if (alpha > 75) {
+                            mask[y * w + x] = 1;
+                            hasPixel = true;
+                            if (x < minX) minX = x;
+                            if (x > maxX) maxX = x;
+                            if (y < minY) minY = y;
+                            if (y > maxY) maxY = y;
+                        }
+                    }
+                }
+
+                if (!hasPixel) {
+                    glyphPathCache.set(cacheKey, null);
+                    return null;
+                }
+
+                // 가로 연속 런(run)을 벡터 사각형 세그먼트로 병합하여 구성
+                const pathParts = [];
+                for (let y = minY; y <= maxY; y++) {
+                    let x = minX;
+                    while (x <= maxX) {
+                        if (mask[y * w + x] === 1) {
+                            const startX = x;
+                            while (x <= maxX && mask[y * w + x] === 1) {
+                                x++;
+                            }
+                            const endX = x;
+                            const x1 = Number((startX / scale).toFixed(2));
+                            const x2 = Number((endX / scale).toFixed(2));
+                            const y1 = Number((y / scale).toFixed(2));
+                            const y2 = Number(((y + 1) / scale).toFixed(2));
+                            pathParts.push(`M${x1} ${y1}H${x2}V${y2}H${x1}Z`);
+                        } else {
+                            x++;
+                        }
+                    }
+                }
+
+                const d = pathParts.join('');
+                glyphPathCache.set(cacheKey, d || null);
+                return d || null;
+            } catch (err) {
+                console.error('SVG 경로 변환 실패:', err);
+                return null;
+            }
+        }
+
+        /**
+         * 유니코드 입력 문자열을 파싱하여 Дунба 문자로 변환
+         * 지원 포맷: U+E000, \uE000, 0xE000, E000 등
+         */
+        function parseUnicodeToDongba(text) {
+            if (!text.trim()) return '';
+            
+            const lines = text.split('\n');
+            const convertedLines = lines.map(line => {
+                const tokens = line.trim().split(/[\s,;]+/);
+                let result = '';
+
+                for (let token of tokens) {
+                    if (!token) continue;
+                    // 접두사 제거 (U+, u+, \u, 0x)
+                    const cleanHex = token.replace(/^(?:U\+|u\+|\\u|0x)/i, '');
+                    
+                    // 유효한 16진수 코드포인트인지 확인
+                    if (/^[0-9A-Fa-f]{1,6}$/.test(cleanHex)) {
+                        const codePoint = parseInt(cleanHex, 16);
+                        if (codePoint >= 0 && codePoint <= 0x10FFFF) {
+                            try {
+                                result += String.fromCodePoint(codePoint);
+                            } catch (e) {
+                                // 유효하지 않은 코드포인트 무시
+                            }
+                        }
+                    }
+                }
+                return result;
+            });
+
+            return convertedLines.join('\n');
+        }
+
+        /**
+         * Дунба 문자열을 유니코드 표기(U+XXXX)로 변환
+         */
+        function parseDongbaToUnicode(text) {
+            if (!text) return '';
+            
+            const lines = text.split('\n');
+            const convertedLines = lines.map(line => {
+                const codes = [];
+                for (const char of line) {
+                    const cp = char.codePointAt(0);
+                    if (cp !== undefined) {
+                        const hex = cp.toString(16).toUpperCase().padStart(4, '0');
+                        codes.push(`U+${hex}`);
+                    }
+                }
+                return codes.join(' ');
+            });
+
+            return convertedLines.join('\n');
+        }
+
+        // 유니코드 영역 입력 이벤트 -> Дунба 영역 업데이트
+        unicodeInput.addEventListener('input', () => {
+            if (isSyncing) return;
+            isSyncing = true;
+            dongbaOutput.value = parseUnicodeToDongba(unicodeInput.value);
+            updateCharCount();
+            isSyncing = false;
+        });
+
+        // Дунба 영역 직접 수정 이벤트 -> 유니코드 영역 업데이트
+        dongbaOutput.addEventListener('input', () => {
+            if (isSyncing) return;
+            isSyncing = true;
+            unicodeInput.value = parseDongbaToUnicode(dongbaOutput.value);
+            updateCharCount();
+            isSyncing = false;
+        });
+
+        // 글자 수 업데이트
+        function updateCharCount() {
+            const count = Array.from(dongbaOutput.value.replace(/\n/g, '')).length;
+            charCount.textContent = `Всего знаков: ${count}`;
+        }
+
+        // 폰트 크기 슬라이더 조절
+        fontSizeSlider.addEventListener('input', applyDongbaStyle);
+        fontWeightSelect.addEventListener('change', applyDongbaStyle);
+        fontStyleSelect.addEventListener('change', applyDongbaStyle);
+        textColorPicker.addEventListener('input', applyDongbaStyle);
+
+        // 글리프 그리드 렌더링 — 블록 구분 없이 전체 범위 표시
+        function renderGlyphGrid(highlightCode = null) {
+            glyphGrid.innerHTML = '';
+
+            for (let cp = START_CODEPOINT; cp <= END_CODEPOINT; cp++) {
+                const hex = cp.toString(16).toUpperCase().padStart(4, '0');
+                const char = String.fromCodePoint(cp);
+
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.id = `glyph-${hex}`;
+                const isHighlighted = highlightCode === hex;
+                
+                btn.className = `group flex flex-col items-center justify-center p-2.5 rounded-xl border transition-all duration-150 cursor-pointer select-none ${
+                    isHighlighted 
+                    ? 'bg-indigo-100 border-indigo-500 ring-2 ring-indigo-500' 
+                    : 'bg-slate-50 hover:bg-indigo-50 border-slate-200/80 hover:border-indigo-300'
+                }`;
+
+                btn.innerHTML = `
+                    <span class="dongba-font text-3xl sm:text-4xl text-slate-800 group-hover:scale-110 transition-transform">${char}</span>
+                    <span class="mt-1.5 text-[10px] font-mono text-slate-400 group-hover:text-indigo-600">U+${hex}</span>
+                `;
+
+                btn.addEventListener('click', () => appendCharacter(cp));
+                glyphGrid.appendChild(btn);
+            }
+        }
+
+        // 글자 선택 시 Дунба 영역 및 유니코드 영역에 동시 추가
+        function appendCharacter(codePoint) {
+            isSyncing = true;
+            const char = String.fromCodePoint(codePoint);
+            const hex = codePoint.toString(16).toUpperCase().padStart(4, '0');
+
+            // Дунба 입력 영역에 추가
+            dongbaOutput.value += char;
+
+            // 유니코드 입력 영역에 공백과 함께 추가
+            const currentUni = unicodeInput.value;
+            if (currentUni.length > 0 && !currentUni.endsWith(' ') && !currentUni.endsWith('\n')) {
+                unicodeInput.value += ` U+${hex}`;
+            } else {
+                unicodeInput.value += `U+${hex}`;
+            }
+
+            updateCharCount();
+            isSyncing = false;
+        }
+
+        // 한 글자 지우기
+        function backspaceDongba() {
+            const chars = Array.from(dongbaOutput.value);
+            if (chars.length === 0) return;
+            chars.pop();
+            dongbaOutput.value = chars.join('');
+            
+            isSyncing = true;
+            unicodeInput.value = parseDongbaToUnicode(dongbaOutput.value);
+            updateCharCount();
+            isSyncing = false;
+        }
+
+        // 기본 예시 입력 (U+E000 ~ U+E00D)
+        function insertSample() {
+            const sampleCodes = [];
+            for (let i = 0xE000; i <= 0xE00D; i++) {
+                sampleCodes.push(`U+${i.toString(16).toUpperCase()}`);
+            }
+            unicodeInput.value = sampleCodes.join(' ');
+            dongbaOutput.value = parseUnicodeToDongba(unicodeInput.value);
+            updateCharCount();
+        }
+
+        // 전체 초기화
+        function clearAll() {
+            unicodeInput.value = '';
+            dongbaOutput.value = '';
+            updateCharCount();
+            closeSVGPreview();
+        }
+
+        /**
+         * 현재 출력된 Дунба 문자를 기반으로 유효하고 깨지지 않는 SVG 벡터 문자열 생성
+         */
+        function buildDongbaSVGString(text) {
+            const lines = text.split('\n');
+            const { fontSize, fontWeight, fontStyle, color } = getDongbaStyle();
+            const padding = Math.round(fontSize * 0.5);
+            const charSpacing = Math.round(fontSize * (fontStyle === 'italic' ? 1.4 : 1.25));
+            const lineHeight = Math.round(fontSize * 1.5);
+
+            const lineCharsList = lines.map(line => Array.from(line));
+            const maxCharsInLine = Math.max(1, ...lineCharsList.map(chars => chars.length));
+
+            const svgWidth = Math.max(fontSize * 2.5, padding * 2 + maxCharsInLine * charSpacing);
+            const svgHeight = Math.max(fontSize * 2.5, padding * 2 + lineCharsList.length * lineHeight);
+            latestSVGDimensions = { width: svgWidth, height: svgHeight };
+
+            const escapeXml = (str) => str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&apos;');
+
+            const vectorElements = [];
+            lineCharsList.forEach((chars, lineIdx) => {
+                const baseY = padding + lineIdx * lineHeight;
+                chars.forEach((ch, charIdx) => {
+                    if (ch === ' ' || ch === '\t') return;
+                    const x = padding + charIdx * charSpacing;
+                    const pathData = traceCharacterToSVGPath(ch, fontSize, fontWeight, fontStyle);
+
+                    if (pathData) {
+                        vectorElements.push(
+                            `  <path d="${pathData}" transform="translate(${x}, ${baseY})" fill="${color}" />`
+                        );
+                    } else {
+                        vectorElements.push(
+                            `  <text x="${x}" y="${baseY + fontSize * 0.85}" font-family="'BabelStoneNaxiLLC', 'BabelStone Naxi LLC', serif" font-size="${fontSize}" font-weight="${fontWeight}" font-style="${fontStyle}" fill="${color}">${escapeXml(ch)}</text>`
+                        );
+                    }
+                });
+            });
+
+            // 업로드된 폰트 파일이 있다면 SVG <defs>에 @font-face로 내장
+            const embeddedFontStyle = loadedFontDataUrl
+                ? [
+                    `  <defs>`,
+                    `    <style type="text/css"><![CDATA[`,
+                    `      @font-face { font-family: 'BabelStoneNaxiLLC'; src: url('${loadedFontDataUrl}') format('truetype'); font-weight: ${fontWeight}; font-style: ${fontStyle}; }`,
+                    `    ]]></style>`,
+                    `  </defs>`
+                ].join('\n')
+                : '';
+
+            return [
+                `<?xml version="1.0" encoding="UTF-8"?>`,
+                `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgWidth} ${svgHeight}" width="${svgWidth}" height="${svgHeight}">`,
+                embeddedFontStyle,
+                ...vectorElements,
+                `</svg>`
+            ].filter(Boolean).join('\n');
+        }
+
+        // Дунба 벡터(SVG) 미리보기 및 내보내기 준비
+        function exportDongbaSVG() {
+            const text = dongbaOutput.value;
+            if (!text.trim()) {
+                showToast('Нет знаков Дунба для экспорта.');
+                return;
+            }
+
+            try {
+                latestSVGString = buildDongbaSVGString(text);
+                const previewSection = document.getElementById('svg-preview-section');
+                const previewBox = document.getElementById('svg-preview-box');
+
+                previewBox.innerHTML = latestSVGString;
+                previewSection.classList.remove('hidden');
+                previewSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                showToast('Предпросмотр готов (SVG, PNG, JPG).');
+            } catch (err) {
+                console.error(err);
+                showToast('Ошибка при создании изображения.');
+            }
+        }
+
+        // 생성된 SVG 파일 다운로드
+        function downloadGeneratedSVG() {
+            if (!latestSVGString) {
+                exportDongbaSVG();
+                if (!latestSVGString) return;
+            }
+
+            try {
+                const encodedSvg = encodeURIComponent(latestSVGString);
+                const dataUrl = `data:image/svg+xml;charset=utf-8,${encodedSvg}`;
+                const link = document.createElement('a');
+                link.href = dataUrl;
+                link.download = 'dongba_vector.svg';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                showToast('Файл dongba_vector.svg скачан.');
+            } catch (err) {
+                console.error(err);
+                showToast('Не удалось скачать SVG.');
+            }
+        }
+
+        /**
+         * SVG를 Canvas에 그려 PNG 또는 JPG 이미지로 다운로드
+         */
+        function downloadRasterImage(format) {
+            const text = dongbaOutput.value;
+            if (!text.trim()) {
+                showToast('Нет знаков Дунба для экспорта.');
+                return;
+            }
+
+            try {
+                if (!latestSVGString) {
+                    latestSVGString = buildDongbaSVGString(text);
+                }
+
+                const scale = 2;
+                const width = Math.max(100, latestSVGDimensions.width || 300);
+                const height = Math.max(100, latestSVGDimensions.height || 150);
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width * scale;
+                canvas.height = height * scale;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    showToast('Ошибка контекста Canvas.');
+                    return;
+                }
+
+                ctx.scale(scale, scale);
+
+                // JPG는 투명 배경이 없으므로 흰색 배경 적용
+                if (format === 'jpg') {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, width, height);
+                } else {
+                    ctx.clearRect(0, 0, width, height);
+                }
+
+                const img = new Image();
+                const svgDataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(latestSVGString)}`;
+
+                img.onload = () => {
+                    try {
+                        ctx.drawImage(img, 0, 0, width, height);
+                        const mimeType = format === 'jpg' ? 'image/jpeg' : 'image/png';
+                        const quality = format === 'jpg' ? 0.92 : undefined;
+                        const imageUrl = canvas.toDataURL(mimeType, quality);
+
+                        const link = document.createElement('a');
+                        link.href = imageUrl;
+                        link.download = `dongba_image.${format}`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        showToast(`Файл dongba_image.${format} скачан.`);
+                    } catch (drawErr) {
+                        console.error(drawErr);
+                        showToast(`Ошибка при сохранении ${format.toUpperCase()}.`);
+                    }
+                };
+
+                img.onerror = () => {
+                    showToast(`Не удалось преобразовать SVG в ${format.toUpperCase()}.`);
+                };
+
+                img.src = svgDataUrl;
+            } catch (err) {
+                console.error(err);
+                showToast(`Ошибка экспорта в ${format.toUpperCase()}.`);
+            }
+        }
+
+        // SVG 소스 코드 복사
+        function copySVGCode() {
+            if (!latestSVGString) {
+                showToast('Сначала создайте SVG.');
+                return;
+            }
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = latestSVGString;
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Код SVG скопирован.');
+            } catch (err) {
+                showToast('Не удалось скопировать код SVG.');
+            }
+            document.body.removeChild(tempTextarea);
+        }
+
+        // SVG 미리보기 영역 숨기기
+        function closeSVGPreview() {
+            const previewSection = document.getElementById('svg-preview-section');
+            if (previewSection) {
+                previewSection.classList.add('hidden');
+            }
+        }
+
+        // 클립보드 복사
+        function copyText(elementId, message) {
+            const el = document.getElementById(elementId);
+            if (!el.value) {
+                showToast('Нет содержимого для копирования.');
+                return;
+            }
+            el.select();
+            el.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                showToast(message);
+            } catch (err) {
+                showToast('Не удалось скопировать.');
+            }
+            window.getSelection().removeAllRanges();
+        }
+
+        // 토스트 알림 표시
+        let toastTimeout;
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-message');
+            toastMsg.textContent = msg;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2200);
+        }
+
+        // 코드 검색 및 이동 (전체 범위 내에서 즉시 스크롤 이동)
+        function jumpToHex() {
+            let query = hexSearch.value.trim().replace(/^(?:U\+|u\+|\\u|0x)/i, '').toUpperCase();
+            if (!/^[0-9A-F]{4}$/.test(query)) {
+                showToast('Введите 4-значный HEX-код (напр. E00D)');
+                return;
+            }
+            const cp = parseInt(query, 16);
+            if (cp < START_CODEPOINT || cp > END_CODEPOINT) {
+                showToast('Код вне диапазона U+E000 – U+E5FF');
+                return;
+            }
+
+            renderGlyphGrid(query);
+
+            const targetBtn = document.getElementById(`glyph-${query}`);
+            if (targetBtn) {
+                targetBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        hexSearch.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') jumpToHex();
+        });
+
+        // 사용자가 보유한 BabelStoneNaxiLLC.ttf 파일 직접 로드 기능
+        fontUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                const buffer = await file.arrayBuffer();
+                loadedFontBuffer = buffer;
+                loadedFontDataUrl = `data:font/ttf;base64,${arrayBufferToBase64(buffer)}`;
+                glyphPathCache.clear();
+
+                const fontFace = new FontFace('BabelStoneNaxiLLC', buffer);
+                await fontFace.load();
+                document.fonts.add(fontFace);
+                fontStatusText.textContent = `Загружено: ${file.name}`;
+                showToast('Шрифт успешно применён!');
+            } catch (err) {
+                console.error(err);
+                showToast('Ошибка при загрузке файла шрифта.');
+            }
+        });
+
+        // 초기 실행: 전체 Дунба 문자 렌더링 및 기본 예시 로드
+        window.addEventListener('DOMContentLoaded', () => {
+            applyDongbaStyle();
+            renderGlyphGrid();
+            insertSample();
+        });
+    </script>
+</body>
+</html>
